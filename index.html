@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>မသက်သက် ရွှေဆိုင် - Gold Calculator Pro</title>
+    
+    <!-- PWA Manifest & Meta Tags -->
+    <link rel="manifest" href="manifest.json"> 
+    <meta name="theme-color" content="#FF5E00"> 
+    <meta name="apple-mobile-web-app-capable" content="yes"> 
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --neon-orange: #ff5e00;
+            --neon-glow: 0 0 10px rgba(255, 94, 0, 0.6), 
+                         0 0 20px rgba(255, 94, 0, 0.4), 
+                         0 0 30px rgba(255, 94, 0, 0.2);
+            --text-light: #f5f5f5;
+            --text-muted: #888888;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            max-width: 850px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .calculator-card, .numpad-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 94, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .calculator-card {
+            flex: 1.2;
+            min-width: 320px;
+            max-width: 450px;
+        }
+
+        .numpad-card {
+            flex: 0.8;
+            min-width: 280px;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .calculator-card:hover, .numpad-card:hover {
+            box-shadow: var(--neon-glow);
+            border-color: var(--neon-orange);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            color: var(--neon-orange);
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(255, 94, 0, 0.4);
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            align-items: stretch;
+        }
+
+        .toggle-switch {
+            display: flex;
+            background-color: #000;
+            border-radius: 12px;
+            border: 1px solid #333;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--neon-orange);
+            color: #000;
+            box-shadow: 0 0 10px rgba(255, 94, 0, 0.4);
+        }
+
+        .btn-clear-all {
+            background-color: #000;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: #ff4757;
+            padding: 0 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-clear-all:hover {
+            border-color: #ff4757;
+            background-color: #ff4757;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+        }
+
+        .btn-clear-all svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background-color: #000;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: var(--text-light);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .weight-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .weight-inputs .input-field {
+            text-align: center;
+        }
+
+        .input-field.active {
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 8px rgba(255, 94, 0, 0.3);
+        }
+
+        .result-container {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #000;
+            border-radius: 15px;
+            border-left: 4px solid var(--neon-orange);
+            display: block; 
+        }
+
+        .result-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--neon-orange);
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .result-breakdown {
+            font-size: 15px;
+            color: var(--text-light);
+        }
+
+        #layout2 { display: none; }
+
+        .numpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .btn-num {
+            background-color: #000;
+            color: var(--text-light);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 18px 0;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            touch-action: manipulation;
+        }
+
+        .btn-num:hover {
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+            box-shadow: 0 0 8px rgba(255, 94, 0, 0.2);
+        }
+
+        .btn-num:active {
+            background-color: var(--neon-orange);
+            color: #000;
+        }
+
+        .btn-action {
+            color: #ff4757;
+            font-size: 22px;
+        }
+        .btn-action:hover {
+            border-color: #ff4757;
+            color: #ff4757;
+            box-shadow: 0 0 8px rgba(255, 71, 87, 0.2);
+        }
+        .btn-action:active {
+            background-color: #ff4757;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Left Side: Calculator -->
+        <div class="calculator-card">
+            <div class="header">
+                <h2>မသက်သက် ရွှေဆိုင်</h2>
+                <p>MTT Gold Calculator Pro</p>
+            </div>
+
+            <!-- Action Row (Toggle Switch + Clear All Button) -->
+            <div class="action-row">
+                <div class="toggle-switch">
+                    <div class="toggle-btn active" id="btn-layout1" onclick="switchLayout(1)">ကျသင့်ငွေတွက်ရန်</div>
+                    <div class="toggle-btn" id="btn-layout2" onclick="switchLayout(2)">အလေးချိန်တွက်ရန်</div>
+                </div>
+                
+                <!-- New Delete (Clear All) Button -->
+                <button class="btn-clear-all" onclick="clearAllInputs()" title="Clear All Inputs">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Layout 1: Calculate Amount -->
+            <div id="layout1">
+                <div class="input-group">
+                    <label>ရွှေတစ်ကျပ်သား စျေးနှုန်း (ကျပ်)</label>
+                    <input type="text" id="l1-price" class="input-field active" readonly placeholder="0">
+                </div>
+                
+                <div class="input-group">
+                    <label>ရွှေအလေးချိန် (ကျပ်၊ ပဲ၊ ရွေး)</label>
+                    <div class="weight-inputs">
+                        <input type="text" id="l1-w-kyat" class="input-field" readonly placeholder="ကျပ်">
+                        <input type="text" id="l1-w-pe" class="input-field" readonly placeholder="ပဲ">
+                        <input type="text" id="l1-w-yway" class="input-field" readonly placeholder="ရွေး">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>အလျော့တွက် (ကျပ်၊ ပဲ၊ ရွေး)</label>
+                    <div class="weight-inputs">
+                        <input type="text" id="l1-a-kyat" class="input-field" readonly placeholder="ကျပ်">
+                        <input type="text" id="l1-a-pe" class="input-field" readonly placeholder="ပဲ">
+                        <input type="text" id="l1-a-yway" class="input-field" readonly placeholder="ရွေး">
+                    </div>
+                </div>
+
+                <div class="result-container">
+                    <div class="result-title">ကျသင့်ငွေ (Total Amount):</div>
+                    <div class="result-value" id="l1-result-amount">0 ကျပ်</div>
+                </div>
+            </div>
+
+            <!-- Layout 2: Calculate Weight -->
+            <div id="layout2">
+                <div class="input-group">
+                    <label>လက်ရှိရှိသော ငွေပမာဏ (ကျပ်)</label>
+                    <input type="text" id="l2-amount" class="input-field" readonly placeholder="0">
+                </div>
+
+                <div class="input-group">
+                    <label>ရွှေတစ်ကျပ်သား စျေးနှုန်း (ကျပ်)</label>
+                    <input type="text" id="l2-price" class="input-field" readonly placeholder="0">
+                </div>
+
+                <div class="result-container">
+                    <div class="result-title">ရရှိနိုင်မည့် ရွှေအလေးချိန်:</div>
+                    <div class="result-value" id="l2-result-decimal">0.0000 ကျပ်</div>
+                    <div class="result-breakdown" id="l2-result-breakdown">0 ကျပ်, 0 ပဲ, 0 ရွေး</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Redesigned Numpad -->
+        <div class="numpad-card">
+            <div class="numpad-grid">
+                <!-- Row 1: Actions & 000 -->
+                <button class="btn-num btn-action" onclick="clearInput()">C</button>
+                <button class="btn-num btn-action" onclick="backspace()">⌫</button>
+                <button class="btn-num" onclick="inputNum('000')">000</button>
+                
+                <!-- Row 2 -->
+                <button class="btn-num" onclick="inputNum('7')">7</button>
+                <button class="btn-num" onclick="inputNum('8')">8</button>
+                <button class="btn-num" onclick="inputNum('9')">9</button>
+                
+                <!-- Row 3 -->
+                <button class="btn-num" onclick="inputNum('4')">4</button>
+                <button class="btn-num" onclick="inputNum('5')">5</button>
+                <button class="btn-num" onclick="inputNum('6')">6</button>
+                
+                <!-- Row 4 -->
+                <button class="btn-num" onclick="inputNum('1')">1</button>
+                <button class="btn-num" onclick="inputNum('2')">2</button>
+                <button class="btn-num" onclick="inputNum('3')">3</button>
+                
+                <!-- Row 5: Decimal & Zeros -->
+                <button class="btn-num" onclick="inputNum('.')">.</button>
+                <button class="btn-num" onclick="inputNum('0')">0</button>
+                <button class="btn-num" onclick="inputNum('00')">00</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeInput = document.getElementById('l1-price');
+        
+        const allInputs = document.querySelectorAll('.input-field');
+        allInputs.forEach(input => {
+            input.addEventListener('click', function() {
+                allInputs.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                activeInput = this;
+            });
+        });
+
+        function switchLayout(layoutNum) {
+            const layout1 = document.getElementById('layout1');
+            const layout2 = document.getElementById('layout2');
+            const btn1 = document.getElementById('btn-layout1');
+            const btn2 = document.getElementById('btn-layout2');
+
+            allInputs.forEach(i => i.classList.remove('active'));
+
+            if (layoutNum === 1) {
+                layout1.style.display = 'block';
+                layout2.style.display = 'none';
+                btn1.classList.add('active');
+                btn2.classList.remove('active');
+                
+                activeInput = document.getElementById('l1-price');
+                activeInput.classList.add('active');
+            } else {
+                layout1.style.display = 'none';
+                layout2.style.display = 'block';
+                btn1.classList.remove('active');
+                btn2.classList.add('active');
+                
+                activeInput = document.getElementById('l2-amount');
+                activeInput.classList.add('active');
+            }
+        }
+
+        function formatNumberWithCommas(value) {
+            let numStr = value.replace(/[^0-9.]/g, '');
+            if (!numStr) return '';
+            
+            let parts = numStr.split('.');
+            if (parts.length > 2) {
+                parts = [parts[0], parts.slice(1).join('')];
+            }
+            
+            let wholePart = parts[0];
+            if (wholePart) {
+                wholePart = parseInt(wholePart, 10).toLocaleString('en-US');
+            } else if (parts.length > 1) {
+                wholePart = '0';
+            }
+            
+            if (parts.length > 1) {
+                return wholePart + '.' + parts[1];
+            } else {
+                return wholePart;
+            }
+        }
+
+        function inputNum(numStr) {
+            if (!activeInput) return;
+            
+            let rawVal = activeInput.value.replace(/,/g, '');
+            
+            if (numStr === '.') {
+                if (rawVal.includes('.')) return;
+                if (rawVal === '' || rawVal === '0') {
+                    rawVal = '0.';
+                } else {
+                    rawVal += '.';
+                }
+            } else {
+                if (rawVal === '0') {
+                    if (numStr === '0' || numStr === '00' || numStr === '000') {
+                        return;
+                    } else {
+                        rawVal = numStr;
+                    }
+                } else {
+                    rawVal += numStr;
+                }
+            }
+            
+            activeInput.value = formatNumberWithCommas(rawVal);
+            calculateAll(); 
+        }
+
+        function clearInput() {
+            if (!activeInput) return;
+            activeInput.value = '';
+            calculateAll();
+        }
+
+        function backspace() {
+            if (!activeInput) return;
+            let rawVal = activeInput.value.replace(/,/g, '');
+            rawVal = rawVal.slice(0, -1);
+            activeInput.value = formatNumberWithCommas(rawVal);
+            calculateAll(); 
+        }
+
+        function clearAllInputs() {
+            allInputs.forEach(input => {
+                input.value = '';
+            });
+            calculateAll();
+        }
+
+        function calculateAll() {
+            calculateLayout1();
+            calculateLayout2();
+        }
+
+        function calculateLayout1() {
+            const price = parseFloat(document.getElementById('l1-price').value.replace(/,/g, '')) || 0;
+            
+            const wKyat = parseFloat(document.getElementById('l1-w-kyat').value.replace(/,/g, '')) || 0;
+            const wPe = parseFloat(document.getElementById('l1-w-pe').value.replace(/,/g, '')) || 0;
+            const wYway = parseFloat(document.getElementById('l1-w-yway').value.replace(/,/g, '')) || 0;
+            
+            const aKyat = parseFloat(document.getElementById('l1-a-kyat').value.replace(/,/g, '')) || 0;
+            const aPe = parseFloat(document.getElementById('l1-a-pe').value.replace(/,/g, '')) || 0;
+            const aYway = parseFloat(document.getElementById('l1-a-yway').value.replace(/,/g, '')) || 0;
+
+            const totalKyat = (wKyat + aKyat) + ((wPe + aPe) / 16) + ((wYway + aYway) / 128);
+            const finalAmount = totalKyat * price;
+
+            document.getElementById('l1-result-amount').innerText = Math.round(finalAmount).toLocaleString('en-US') + " ကျပ်";
+        }
+
+        function calculateLayout2() {
+            const amount = parseFloat(document.getElementById('l2-amount').value.replace(/,/g, '')) || 0;
+            const price = parseFloat(document.getElementById('l2-price').value.replace(/,/g, '')) || 0;
+
+            if (price === 0 || amount === 0) {
+                document.getElementById('l2-result-decimal').innerText = "0.0000 ကျပ်";
+                document.getElementById('l2-result-breakdown').innerText = "0 ကျပ်, 0 ပဲ, 0 ရွေး";
+                return;
+            }
+
+            const totalKyat = amount / price;
+            const kyat = Math.floor(totalKyat);
+            const peDecimal = (totalKyat - kyat) * 16;
+            const pe = Math.floor(peDecimal);
+            const ywayDecimal = (peDecimal - pe) * 8;
+            const yway = ywayDecimal.toFixed(2);
+
+            document.getElementById('l2-result-decimal').innerText = totalKyat.toFixed(4) + " ကျပ်";
+            document.getElementById('l2-result-breakdown').innerText = `${kyat} ကျပ်, ${pe} ပဲ, ${yway} ရွေး`;
+        }
+    </script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script> 
+        if ("serviceWorker" in navigator) { 
+            navigator.serviceWorker.register("service-worker.js"); 
+        } 
+    </script>
+</body>
+</html>
