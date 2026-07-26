@@ -272,6 +272,17 @@
             background-color: #ff4757;
             color: #fff;
         }
+                /* --- Mobile Layout Adjustments --- */
+        @media (max-width: 768px) {
+            .numpad-card {
+                display: none !important; /* Removes custom number pad on mobile */
+            }
+            .calculator-card {
+                max-width: 100%;
+                flex: 100%;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -382,16 +393,48 @@
     </div>
 
     <script>
-        let activeInput = document.getElementById('l1-price');
-        
+                let activeInput = document.getElementById('l1-price');
         const allInputs = document.querySelectorAll('.input-field');
+
+        // Function to toggle between native keyboard (mobile) and custom numpad (tablet)
+        function updateInputMode() {
+            const isMobile = window.innerWidth <= 768;
+            allInputs.forEach(input => {
+                if (isMobile) {
+                    input.removeAttribute('readonly'); // Allows native keyboard
+                    input.setAttribute('inputmode', 'decimal'); // Triggers modern native number pad
+                } else {
+                    input.setAttribute('readonly', 'true'); // Forces custom numpad for tablets
+                }
+            });
+        }
+
         allInputs.forEach(input => {
+            // Handle field selection
             input.addEventListener('click', function() {
                 allInputs.forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
                 activeInput = this;
             });
+
+            // Handle native typing events for mobile phones
+            input.addEventListener('input', function(e) {
+                let rawVal = this.value.replace(/[^0-9.]/g, ''); // Keep only numbers and decimals
+                
+                // Prevent multiple decimals
+                const parts = rawVal.split('.');
+                if (parts.length > 2) {
+                    rawVal = parts[0] + '.' + parts.slice(1).join('');
+                }
+                
+                this.value = formatNumberWithCommas(rawVal);
+                calculateAll(); // Automatically calculate as the user types
+            });
         });
+
+        // Run detection on load and if the screen is resized
+        window.addEventListener('resize', updateInputMode);
+        updateInputMode();
 
         function switchLayout(layoutNum) {
             const layout1 = document.getElementById('layout1');

@@ -1,6 +1,6 @@
 { 
     "name": "MTT Gold Calculator", 
-    "short_name": "GoldCalc", 
+    "short_name": "GoldCalculator", 
     "start_url": "./", 
     "display": "standalone", 
     "background_color": "#0A0A0A", 
